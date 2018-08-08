@@ -1,0 +1,6 @@
+[package]
+name = "ring"
+version = "0.1.0"
+authors = ["murnux <liammurphy@fastmail.com>"]
+
+[dependencies]
