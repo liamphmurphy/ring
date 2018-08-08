@@ -1,11 +1,11 @@
 use std::io::{BufRead, BufReader};
 use std::process::{Command, Stdio};
 use std::env;
-use std::borrow::Cow;
 use std::vec::Vec;
 
-fn ping_server<'a>(ip: String) -> String{
-    // Let the OS run a ping command.
+fn ping_server<'a>(ip: String, server_target: &'a std::string::String) -> String{
+    println!("Pinging {} servers...", server_target);
+    // Let the OS run a ping command, provide args and stdout
     let ping = Command::new("ping")
         .arg("-q")
         .arg("-c")
@@ -32,13 +32,14 @@ fn server_list (args: Vec<String>) {
     for server in &args {
         if server == "target/debug/ring" {
             continue
-        } else if server == "rocketleague" {
-            println!("Pinging rocket league servers...");
+        } else if server == "wow" {
+            let ip_string = String::from("137.221.105.2");
+            let final_ping = ping_server(ip_string, server);
+            println!("Final Ping for {}: {}", server, final_ping)
         } else if server == "overwatch-west" {
-            println!("Pinging overwatch-west servers...");
             let ip_string = String::from("24.105.30.129");
-            let final_ping = ping_server(ip_string);
-            println!("Final Ping: {}", final_ping);
+            let final_ping = ping_server(ip_string, server);
+            println!("Final Ping for {}: {}", server, final_ping);
         } else {
             println!("\n{} is not a valid game.", server)
         }
