@@ -1,9 +1,33 @@
+extern crate serde_json;
+#[macro_use] extern crate serde_derive;
+
+use std::fs::File;
+use std::path::Path;
 use std::io::{BufRead, BufReader};
+use std::collections::HashMap;
 use std::process::{Command, Stdio};
 use std::env;
 use std::vec::Vec;
 
-fn ping_server<'a>(ip: String, server_target: &'a std::string::String) -> String{
+#[derive(Serialize, Deserialize)]
+struct Server {
+    games: HashMap<String, Games>,
+}
+
+#[derive(Serialize, Deserialize)]
+struct Games {
+    ip_addr: String
+}
+
+
+fn load_list() -> Server {
+    let path = Path::new("src/games.json");
+    let file = File::open(path).expect("Could not open file, exiting program.");
+    let desereialize_list: Server = serde_json::from_reader(file).expect("Error reading json.");
+    return desereialize_list
+}
+
+fn ping_server<'a>(ip: &String, server_target: &'a std::string::String) -> String{
     println!("Pinging {} servers...", server_target);
     // Let the OS run a ping command, provide args and stdout
     let ping = Command::new("ping")
@@ -25,25 +49,7 @@ fn ping_server<'a>(ip: String, server_target: &'a std::string::String) -> String
     }
 
     // 4th element in out_vector is what shows ping, so we return that as a string
-    return out_vector[3].to_string()
-}
-
-fn server_list (args: Vec<String>) {
-    for server in &args {
-        if server == "target/debug/ring" {
-            continue
-        } else if server == "wow" {
-            let ip_string = String::from("137.221.105.2");
-            let final_ping = ping_server(ip_string, server);
-            println!("Final Ping for {}: {}", server, final_ping)
-        } else if server == "overwatch-west" {
-            let ip_string = String::from("24.105.30.129");
-            let final_ping = ping_server(ip_string, server);
-            println!("Final Ping for {}: {}", server, final_ping);
-        } else {
-            println!("\n{} is not a valid game.", server)
-        }
-    }
+    return out_vector[4].to_string()
 }
 
 fn main() {
@@ -51,8 +57,25 @@ fn main() {
 
     // For any possible number of user args, collect them into vector
     let args: Vec<String> = env::args().collect();
-    
-    // Take user args vector and call server_list
-    server_list(args);
 
+    // Call load_list to deserialize games.json
+    let list = load_list();
+
+    let mut ping_result : String;
+
+    for (game, value) in list.games.iter() {
+       for arg in &args {
+           if &arg == &game {
+               ping_result = ping_server(&value.ip_addr, game);
+               println!("{}\n", ping_result);
+           }
+       }
+   }
+    // Take user args vector and call server_list
+    //server_list(args);
+
+    
+
+   
+    
 }
