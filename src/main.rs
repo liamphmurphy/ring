@@ -19,6 +19,12 @@ struct Games {
     ip_addr: String
 }
 
+fn print_list() {
+    let list = load_list();
+    for (game, value) in list.games.iter() {
+        println!("Game: {} -- IP: {}", game, value.ip_addr);
+    }
+}
 
 fn load_list() -> Server {
     let path = Path::new("src/games.json");
@@ -94,9 +100,11 @@ fn main() {
     let list = load_list();
 
     let mut ping_result : String;
-
-    for (game, value) in list.games.iter() {
-       for arg in &args {
+    for arg in &args {
+        if arg == "list" {
+            print_list();
+        }
+        for (game, value) in list.games.iter() {   
            if &arg == &game {
                // Check OS of user, because ping syntax changes. Better solution for this would be nice.
                 if cfg!(unix){
