@@ -9,12 +9,12 @@ use std::process::{Command, Stdio};
 use std::env;
 use std::vec::Vec;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Deserialize)]
 struct Server {
     games: HashMap<String, Games>,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Deserialize)]
 struct Games {
     ip_addr: String
 }
@@ -76,6 +76,14 @@ fn ping_windows<'a>(ip: &String, server_target: &'a std::string::String) -> Stri
     return out_vector[4].to_string()
 }
 
+fn split_output(output: String) {
+    let split = output.split("/");
+    let split_vec: Vec<&str> = split.collect();
+
+    println!("\nAverage Ping: {} ms", split_vec[4]);
+    
+}
+
 fn main() {
     println!("Welcome to the Ring ping tool.\n");
 
@@ -90,8 +98,14 @@ fn main() {
     for (game, value) in list.games.iter() {
        for arg in &args {
            if &arg == &game {
-               ping_result = ping_unix(&value.ip_addr, game);
-               println!("{}\n", ping_result);
+               // Check OS of user, because ping syntax changes. Better solution for this would be nice.
+                if cfg!(unix){
+                    ping_result = ping_unix(&value.ip_addr, game);
+                    split_output(ping_result);
+                } else if cfg!(windows){
+                    ping_result = ping_windows(&value.ip_addr, game);
+                    split_output(ping_result);
+                } 
            }
        }
    }
