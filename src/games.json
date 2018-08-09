@@ -3,8 +3,27 @@
     "overwatch-west": {
         "ip_addr": "24.105.30.129"
     },
-    "wow": {
+    "wow-americas": {
         "ip_addr": "137.221.105.2"
+    },
+    "wow-europe": {
+        "ip_addr": "185.60.112.157"
+    },
+    "wow-korea": {
+        "ip_addr": "211.115.104.1"
+    },
+    "hearthstone-americas": {
+        "ip_addr": "24.105.30.129"
+    },
+    "fortnite-uswest": {
+        "ip_addr": "192.69.96.1"
+    },
+    "fortnite-useast": {
+        "ip_addr": "208.78.164.1"
+    },
+    "fortnite-eueast": {
+        "ip_addr": "146.66.152.1"
     }
+
 }
 }
