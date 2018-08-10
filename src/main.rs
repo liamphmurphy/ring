@@ -19,18 +19,18 @@ struct Games {
     ip_addr: String
 }
 
-fn print_list() {
-    let list = load_list();
-    for (game, value) in list.games.iter() {
-        println!("Game: {} -- IP: {}", game, value.ip_addr);
-    }
-}
-
 fn load_list() -> Server {
     let path = Path::new("src/games.json");
     let file = File::open(path).expect("Could not open file, exiting program.");
     let desereialize_list: Server = serde_json::from_reader(file).expect("Error reading json.");
     return desereialize_list
+}
+
+fn print_list() {
+    let list = load_list();
+    for (game, value) in list.games.iter() {
+        println!("Game: {} -- IP: {}", game, value.ip_addr);
+    }
 }
 
 fn ping_unix<'a>(ip: &String, server_target: &'a std::string::String) -> std::process::Child {
@@ -91,7 +91,9 @@ fn split_output (output: String) {
     if cfg!(unix) {
         let split = output.split("/");
         let split_vec: Vec<&str> = split.collect();
-        let min_ping = split_vec[3];
+        let min_ping_split = split_vec[3].split("= ");
+        let min_vec: Vec<&str> = min_ping_split.collect();
+        let min_ping = min_vec[1];
         let avg_ping = split_vec[4];
         let max_ping = split_vec[5];
         display_output(min_ping.to_string(), avg_ping.to_string(), max_ping.to_string());
@@ -104,9 +106,9 @@ fn split_output (output: String) {
 }
 
 fn display_output(min: String, avg: String, max: String) {
-    println!("\nMinimum Ping: {}", min);
-    println!("Maximum Ping: {}", max);
-    println!("Average Ping: {}\n", avg);
+    println!("\nMinimum Ping: {} ms", min);
+    println!("Maximum Ping: {} ms", max);
+    println!("Average Ping: {} ms\n", avg);
 }
 
 fn main() {
