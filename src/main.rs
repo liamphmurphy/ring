@@ -33,7 +33,7 @@ fn load_list() -> Server {
     return desereialize_list
 }
 
-fn ping_unix<'a>(ip: &String, server_target: &'a std::string::String) -> String{
+fn ping_unix<'a>(ip: &String, server_target: &'a std::string::String) -> std::process::Child {
     println!("Pinging {} servers...", server_target);
     // Let the OS run a ping command, provide args and stdout
     let ping = Command::new("ping")
@@ -45,20 +45,10 @@ fn ping_unix<'a>(ip: &String, server_target: &'a std::string::String) -> String{
         .spawn()
         .unwrap();
 
-    // Let the ping exit, when done, get content from stdout
-    let output = ping.wait_with_output().unwrap();
-    let out = BufReader::new(&*output.stdout);
-
-    let mut out_vector = Vec::new();
-    for line in out.lines() {
-        out_vector.push(line.unwrap().to_string());
-    }
-
-    // 4th element in out_vector is what shows ping, so we return that as a string
-    return out_vector[4].to_string()
+    return ping
 }
 
-fn ping_windows<'a>(ip: &String, server_target: &'a std::string::String) -> String{
+fn ping_windows<'a>(ip: &String, server_target: &'a std::string::String) -> std::process::Child {
     println!("Pinging {} servers...", server_target);
     // Let the OS run a ping command, provide args and stdout
     let ping = Command::new("ping")
@@ -69,6 +59,11 @@ fn ping_windows<'a>(ip: &String, server_target: &'a std::string::String) -> Stri
         .spawn()
         .unwrap();
 
+    return ping
+}
+
+fn gather_output (ping: std::process::Child) -> String {
+    
     // Let the ping exit, when done, get content from stdout
     let output = ping.wait_with_output().unwrap();
     let out = BufReader::new(&*output.stdout);
@@ -77,17 +72,41 @@ fn ping_windows<'a>(ip: &String, server_target: &'a std::string::String) -> Stri
     for line in out.lines() {
         out_vector.push(line.unwrap().to_string());
     }
+    // Initialize result string
+    let result: String;
 
-    // 4th element in out_vector is what shows ping, so we return that as a string
-    return out_vector[10].to_string()
+    // Due to ping commands differing on platforms, change which element to display based on platform of user.
+    if cfg!(windows) {
+        result = out_vector[10].to_string();
+        return result
+    } else if cfg!(unix) {
+        result = out_vector[4].to_string();
+        return result
+    } else {
+        return String::from("Error gathering output.")
+    }
 }
 
-fn split_output(output: String) {
-    let split = output.split("/");
-    let split_vec: Vec<&str> = split.collect();
+fn split_output (output: String) {
+    if cfg!(unix) {
+        let split = output.split("/");
+        let split_vec: Vec<&str> = split.collect();
+        let min_ping = split_vec[3];
+        let avg_ping = split_vec[4];
+        let max_ping = split_vec[5];
+        display_output(min_ping.to_string(), avg_ping.to_string(), max_ping.to_string());
+    }
+    if cfg!(windows){
+        let split = output.split("=");
+        let split_vec: Vec<&str> = split.collect();
+        let split_ele = split_vec[10];
+    }
+}
 
-    println!("\nAverage Ping: {} ms", split_vec[4]);
-    
+fn display_output(min: String, avg: String, max: String) {
+    println!("\nMinimum Ping: {}", min);
+    println!("Maximum Ping: {}", max);
+    println!("Average Ping: {}\n", avg);
 }
 
 fn main() {
@@ -99,7 +118,8 @@ fn main() {
     // Call load_list to deserialize games.json
     let list = load_list();
 
-    let mut ping_result : String;
+    let mut ping_result : std::process::Child;
+    let mut get_output: String;
     for arg in &args {
         if arg == "list" {
             print_list();
@@ -109,19 +129,15 @@ fn main() {
                // Check OS of user, because ping syntax changes. Better solution for this would be nice.
                 if cfg!(unix){
                     ping_result = ping_unix(&value.ip_addr, game);
-                    split_output(ping_result);
+                    get_output = gather_output(ping_result);
+                    split_output(get_output);
                 } else if cfg!(windows){
                     ping_result = ping_windows(&value.ip_addr, game);
-                    println!("{}", ping_result);
+                    get_output = gather_output(ping_result);
+                    split_output(get_output);
                 } 
            }
        }
    }
-    // Take user args vector and call server_list
-    //server_list(args);
-
-    
-
-   
     
 }
