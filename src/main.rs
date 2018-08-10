@@ -4,14 +4,14 @@ extern crate serde_json;
 use std::fs::File;
 use std::path::Path;
 use std::io::{BufRead, BufReader};
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 use std::process::{Command, Stdio};
 use std::env;
 use std::vec::Vec;
 
 #[derive(Deserialize)]
 struct Server {
-    games: HashMap<String, Games>,
+    games: BTreeMap<String, Games>,
 }
 
 #[derive(Deserialize)]
