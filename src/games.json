@@ -23,6 +23,18 @@
     },
     "fortnite-eueast": {
         "ip_addr": "146.66.152.1"
+    },
+    "rocketleague-uswest": {
+        "ip_addr": "104.160.131.3"
+    },
+    "rocketleague-euwest": {
+        "ip_addr": "104.160.141.3"
+    },
+    "rocketleague-eunortheast": {
+        "ip_addr": "104.160.142.3"
+    },
+    "rocketleague-oceanic": {
+        "ip_addr": "104.160.156.1"
     }
 
 }
