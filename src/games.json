@@ -35,6 +35,36 @@
     },
     "rocketleague-oceanic": {
         "ip_addr": "104.160.156.1"
+    },
+    "dota2-euwest": {
+        "ip_addr": "146.66.152.1"
+    },
+    "dota2-eueast": {
+        "ip_addr": "146.66.155.1"
+    },
+    "dota2-uswest": {
+        "ip_addr": "192.69.96.1"
+    },
+    "dota2-useast": {
+        "ip_addr": "208.78.164.1"
+    },
+    "dota2-sydney": {
+        "ip_addr": "103.10.125.1"
+    },
+    "dota2-stockholm": {
+        "ip_addr": "146.66.156.1"
+    },
+    "dota2-brazil": {
+        "ip_addr": "209.197.29.1"
+    },
+    "dota2-sacapetown": {
+        "ip_addr": "197.80.200.1"
+    },
+    "dota2-dubai": {
+        "ip_addr": "185.25.183.1"
+    },
+    "dota2-singapore": {
+        "ip_addr": "103.10.124.1"
     }
 
 }
