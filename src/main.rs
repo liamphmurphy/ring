@@ -134,17 +134,11 @@ fn main() {
             }   
             if &arg == &game {
                // Check OS of user, because ping syntax changes. Better solution for this would be nice.
-                if cfg!(unix){
-                    ping_result = ping_command(&value.ip_addr, game);
-                    get_output = gather_output(ping_result);
-                    split_output(get_output);
-                } else if cfg!(windows){
-                    ping_result = ping_command(&value.ip_addr, game);
-                    get_output = gather_output(ping_result);
-                    split_output(get_output);
+                ping_result = ping_command(&value.ip_addr, game);
+                get_output = gather_output(ping_result);
+                split_output(get_output);
                 } 
            }
-       }
    }
     
 }
