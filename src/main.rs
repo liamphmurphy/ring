@@ -20,7 +20,7 @@ struct Games {
 }
 
 fn load_list() -> Server {
-    let path = Path::new("src/games.json");
+    let path = Path::new("games.json");
     let file = File::open(path).expect("Could not open file, exiting program.");
     let desereialize_list: Server = serde_json::from_reader(file).expect("Error reading json.");
     return desereialize_list
@@ -43,7 +43,9 @@ fn ping_unix<'a>(ip: &String, server_target: &'a std::string::String) -> std::pr
         .arg(&ip)
         .stdout(Stdio::piped())
         .spawn()
-        .unwrap();
+        .expect("Error pinging {}, continuing.");
+      //  .unwrap();
+        
 
     return ping
 }
@@ -57,7 +59,8 @@ fn ping_windows<'a>(ip: &String, server_target: &'a std::string::String) -> std:
         .arg(&ip)
         .stdout(Stdio::piped())
         .spawn()
-        .unwrap();
+        .expect("Error pinging {}, continuing.");
+
 
     return ping
 }
@@ -126,8 +129,14 @@ fn main() {
         if arg == "list" {
             print_list();
         }
-        for (game, value) in list.games.iter() {   
-           if &arg == &game {
+        for (game, value) in list.games.iter() {
+            if arg == "all"{
+                println!("Pinging all known servers, this may take a while...\n");
+                ping_result = ping_unix(&value.ip_addr, game);
+                get_output = gather_output(ping_result);
+                split_output(get_output);
+            }   
+            if &arg == &game {
                // Check OS of user, because ping syntax changes. Better solution for this would be nice.
                 if cfg!(unix){
                     ping_result = ping_unix(&value.ip_addr, game);
