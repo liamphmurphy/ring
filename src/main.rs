@@ -79,7 +79,7 @@ fn ping_windows<'a>(ip: &String, server_target: &'a std::string::String) -> Stri
     }
 
     // 4th element in out_vector is what shows ping, so we return that as a string
-    return out_vector[4].to_string()
+    return out_vector[10].to_string()
 }
 
 fn split_output(output: String) {
@@ -112,7 +112,7 @@ fn main() {
                     split_output(ping_result);
                 } else if cfg!(windows){
                     ping_result = ping_windows(&value.ip_addr, game);
-                    split_output(ping_result);
+                    println!("{}", ping_result);
                 } 
            }
        }
