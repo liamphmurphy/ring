@@ -20,7 +20,7 @@ struct Games {
 }
 
 fn load_list() -> Server {
-    let path = Path::new("games.json");
+    let path = Path::new("./games.json");
     let file = File::open(path).expect("Could not open file, exiting program.");
     let desereialize_list: Server = serde_json::from_reader(file).expect("Error reading json.");
     return desereialize_list
@@ -33,36 +33,32 @@ fn print_list() {
     }
 }
 
-fn ping_unix<'a>(ip: &String, server_target: &'a std::string::String) -> std::process::Child {
+fn ping_command<'a>(ip: &String, server_target: &'a std::string::String) -> std::process::Child {
     println!("Pinging {} servers...", server_target);
+
     // Let the OS run a ping command, provide args and stdout
-    let ping = Command::new("ping")
-        .arg("-q")
-        .arg("-c")
-        .arg("4")
-        .arg(&ip)
-        .stdout(Stdio::piped())
-        .spawn()
-        .expect("Error pinging {}, continuing.");
-      //  .unwrap();
-        
+    if cfg!(windows){
+        let ping = Command::new("ping")
+            .arg("-n")
+            .arg("4")
+            .arg(&ip)
+            .stdout(Stdio::piped())
+            .spawn()
+            .expect("Error pinging {}, continuing.");
+        return ping
 
-    return ping
-}
+    } else {
+        let ping = Command::new("ping")
+            .arg("-q")
+            .arg("-c")
+            .arg("4")
+            .arg(&ip)
+            .stdout(Stdio::piped())
+            .spawn()
+            .expect("Error pinging {}, continuing.");
+        return ping
+    };
 
-fn ping_windows<'a>(ip: &String, server_target: &'a std::string::String) -> std::process::Child {
-    println!("Pinging {} servers...", server_target);
-    // Let the OS run a ping command, provide args and stdout
-    let ping = Command::new("ping")
-        .arg("-n")
-        .arg("4")
-        .arg(&ip)
-        .stdout(Stdio::piped())
-        .spawn()
-        .expect("Error pinging {}, continuing.");
-
-
-    return ping
 }
 
 fn gather_output (ping: std::process::Child) -> String {
@@ -132,18 +128,18 @@ fn main() {
         for (game, value) in list.games.iter() {
             if arg == "all"{
                 println!("Pinging all known servers, this may take a while...\n");
-                ping_result = ping_unix(&value.ip_addr, game);
+                ping_result = ping_command(&value.ip_addr, game);
                 get_output = gather_output(ping_result);
                 split_output(get_output);
             }   
             if &arg == &game {
                // Check OS of user, because ping syntax changes. Better solution for this would be nice.
                 if cfg!(unix){
-                    ping_result = ping_unix(&value.ip_addr, game);
+                    ping_result = ping_command(&value.ip_addr, game);
                     get_output = gather_output(ping_result);
                     split_output(get_output);
                 } else if cfg!(windows){
-                    ping_result = ping_windows(&value.ip_addr, game);
+                    ping_result = ping_command(&value.ip_addr, game);
                     get_output = gather_output(ping_result);
                     split_output(get_output);
                 } 
