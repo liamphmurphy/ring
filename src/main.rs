@@ -22,8 +22,8 @@ struct Games {
 fn load_list() -> Server {
     let path = Path::new("./games.json");
     let file = File::open(path).expect("Could not open file, exiting program.");
-    let desereialize_list: Server = serde_json::from_reader(file).expect("Error reading json.");
-    return desereialize_list
+    let deserialize_list: Server = serde_json::from_reader(file).expect("Error reading json.");
+    return deserialize_list
 }
 
 fn print_list() {
@@ -88,27 +88,39 @@ fn gather_output (ping: std::process::Child) -> String {
 
 fn split_output (output: String) {
     if cfg!(unix) {
+        // Unix ping syntax requires splitting / signs to access desired data.
         let split = output.split("/");
         let split_vec: Vec<&str> = split.collect();
-        let min_ping_split = split_vec[3].split("= ");
-        let min_vec: Vec<&str> = min_ping_split.collect();
-        let min_ping = min_vec[1];
-        let avg_ping = split_vec[4];
-        let max_ping = split_vec[5];
+
+        // If length of split_vec is under 2 (which means the ping failed), use if to continue to next server if any.
+        if split_vec.len() < 2 {
+            println!("Ping response was empty, moving to next server.");
+        } else {
+            let min_ping_split = split_vec[3].split("= ");
+            let min_vec: Vec<&str> = min_ping_split.collect();
+            let min_ping = min_vec[1];
+            let avg_ping = split_vec[4];
+            let max_ping = split_vec[5];
         display_output(min_ping, avg_ping, max_ping);
+        }
     }
     if cfg!(windows){
+        // Windows ping syntax requires splitting = signs to access desired data.
         let split = output.split("=");
         let split_vec: Vec<&str> = split.collect();
-        let min_ping_split = split_vec[1].split(",");
-        let max_ping_split = split_vec[2].split(",");
-        let min_vec: Vec<&str> = min_ping_split.collect();
-        let max_vec: Vec<&str> = max_ping_split.collect();
+        if split_vec.len() < 2 {
+            println!("Ping response was empty, moving to next server.");
+        } else {
+            let min_ping_split = split_vec[1].split(",");
+            let max_ping_split = split_vec[2].split(",");
+            let min_vec: Vec<&str> = min_ping_split.collect();
+            let max_vec: Vec<&str> = max_ping_split.collect();
 
-        let min_ping = min_vec[0];
-        let avg_ping = split_vec[3];
-        let max_ping = max_vec[0];
-        display_output(min_ping, avg_ping, max_ping);
+            let min_ping = min_vec[0];
+            let avg_ping = split_vec[3];
+            let max_ping = max_vec[0];
+            display_output(min_ping, avg_ping, max_ping);
+        }
     }
 }
 
@@ -135,7 +147,6 @@ fn main() {
         }
         for (game, value) in list.games.iter() {
             if arg == "all"{
-                println!("Pinging all known servers, this may take a while...\n");
                 ping_result = ping_command(&value.ip_addr, game);
                 get_output = gather_output(ping_result);
                 split_output(get_output);
@@ -148,5 +159,5 @@ fn main() {
                 } 
            }
    }
-    
+    println!("All requested pings are complete.")
 }
