@@ -95,16 +95,24 @@ fn split_output (output: String) {
         let min_ping = min_vec[1];
         let avg_ping = split_vec[4];
         let max_ping = split_vec[5];
-        display_output(min_ping.to_string(), avg_ping.to_string(), max_ping.to_string());
+        display_output(min_ping, avg_ping, max_ping);
     }
     if cfg!(windows){
         let split = output.split("=");
         let split_vec: Vec<&str> = split.collect();
-        let split_ele = split_vec[10];
+        let min_ping_split = split_vec[1].split(",");
+        let max_ping_split = split_vec[2].split(",");
+        let min_vec: Vec<&str> = min_ping_split.collect();
+        let max_vec: Vec<&str> = max_ping_split.collect();
+
+        let min_ping = min_vec[0];
+        let avg_ping = split_vec[3];
+        let max_ping = max_vec[0];
+        display_output(min_ping, avg_ping, max_ping);
     }
 }
 
-fn display_output(min: String, avg: String, max: String) {
+fn display_output(min: &str, avg: &str, max: &str) {
     println!("\nMinimum Ping: {} ms", min);
     println!("Maximum Ping: {} ms", max);
     println!("Average Ping: {} ms\n", avg);
